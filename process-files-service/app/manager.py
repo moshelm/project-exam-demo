@@ -3,15 +3,15 @@ from process_files import FileMetadata
 from logging import Logger 
 import os 
 
-class ServiceManager():
-    def __init__(self,producer: KafkaProducer, open_files : OpenFiles, logger : Logger):
+class FileProcessor():
+    def __init__(self,producer: KafkaProducer, file_metadata : FileMetadata, logger : Logger):
         self.logger = logger 
         self.producer = producer
-        self.open_files = open_files
-        
+        self.file_metadata = file_metadata
+
     def handle_file(self, file:str):
         try:
-            event = self.open_files.get_file_metadata(file)
+            event = self.file_metadata.get_file_metadata(file)
             self.producer.send_event(event)
         except KafkaException:
             self.logger.critical("kafka failed",exc_info=True)
