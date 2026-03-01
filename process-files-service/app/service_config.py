@@ -12,9 +12,11 @@ class ServiceConfig():
 
         self.level_log = os.getenv("LEVEL_LOG","INFO")
         self.service_name = os.getenv("SERVICE_NAME","process-files")
+        
         data_path = os.getenv("DATA_PATH","/data")
 
         self.data_path = Path(data_path) / "podcasts"
+    
     def validate(self):
         if not self.kafka_connect:
             raise
