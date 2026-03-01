@@ -2,7 +2,7 @@ import logging
 from manager import FileProcessor
 from process_files import FileMetadata
 from service_config import ServiceConfig
-from shared.kafka.producer import KafkaProducer
+from shared.kafka.producer import KafkaProducer, KafkaException
 
 config = ServiceConfig()
 config.validate()
@@ -24,9 +24,13 @@ def main():
         manager = FileProcessor(producer,file_processor,manager_logger)
 
         manager.run()
-
+    except KafkaException:
+        raise
     except Exception:
         raise
 
 if __name__=="__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        raise
