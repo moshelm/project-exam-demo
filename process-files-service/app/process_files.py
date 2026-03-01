@@ -2,10 +2,10 @@ from logging import Logger
 from pathlib import Path
 from datetime import datetime
 
-class OpenFiles():
+class FileMetadata():
     def __init__(self, data_path: Path, logger:Logger):
         self.logger = logger
-        self.path_to_dir = data_path
+        self.data_path = data_path
     
     def get_file_metadata(self,file:str):
             file_path = self.data_path / file
