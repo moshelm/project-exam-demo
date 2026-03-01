@@ -1,8 +1,5 @@
-import pathlib
-import json 
 from logging import Logger
 from pathlib import Path
-import os 
 from datetime import datetime
 
 class OpenFiles():
@@ -11,13 +8,18 @@ class OpenFiles():
         self.path_to_dir = data_path
     
     def get_file_metadata(self,file:str):
-            file_path = os.path.join(self.path_to_dir,file)
-            file_name = os.path.basename(file_path)
+            file_path = self.data_path / file
+            if not file_path.exists():
+                 self.logger.error("not found file",exc_info=True)
+                 raise FileNotFoundError
+            stats = file_path.stat()
             metadata = {
-                  "file_name":file_name,
-                "file_size" : os.path.getsize(file_path),
-                "date_create": datetime.fromtimestamp(os.path.getctime(file_path))
-            }
-            return  {"file_path":file_path,
-                     "metadata":metadata}
+                    "file_name":file_path.name,
+                    "file_size" : stats.st_size,
+                    "file_create_date": datetime.fromtimestamp(stats.st_birthtime)
+                    }
+            return  {
+                 "file_path":str(file_path),
+                 "metadata":metadata
+                 }
             
