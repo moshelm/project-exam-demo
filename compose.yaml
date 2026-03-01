@@ -1,0 +1,38 @@
+services:
+  kafka:
+    image: confluentinc/cp-kafka:7.8.3
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_KRAFT_MODE: 'true'  
+      KAFKA_NODE_ID: 1
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: CONTROLLER://0.0.0.0:9093,PLAINTEXT://0.0.0.0:9092
+      
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+  open-service:
+   build: ./process-files-service 
+   container_name: open 
+   env_file:
+    - ./config/.env
+    - ./config/open_files_service.env
+   volumes:
+     - ./shared:/shared
+     - ./data:/data
+     - ./process-files-service/app:/app
+   environment:
+    - PYTHONPATH=/app:/
