@@ -3,7 +3,6 @@ from manager import FileProcessor
 from mongo_stor import StorAudioMongo
 from service_config import ServiceConfig
 from shared.kafka.consumer import KafkaConsumer, KafkaException
-from shared.mongo_connection import MongoConnection
 from shared.elasticsearch_connection import ElasticConnection
 
 config = ServiceConfig()
