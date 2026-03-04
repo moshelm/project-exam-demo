@@ -43,6 +43,8 @@ services:
    depends_on:
      kafka:
        condition: service_healthy
+     elasticsearch:
+       condition: service_healthy
   process-service:
     build: ./process-files-service
     container_name: process
