@@ -22,6 +22,8 @@ class ServiceConfig():
         elasticsearch_host = os.getenv("ELASTICSEARCH_HOST","localhost")
         elasticsearch_port = os.getenv("ELASTICSEARCH_PORT","9200")
         self.index_name = os.getenv("INDEX_NAME","audio")
+        self.index_logger = os.getenv("INDEX_LOGGER","logger")
+
         self.elastic_config = f"http://{elasticsearch_host}:{elasticsearch_port}"
 
         self.level_log = os.getenv("LEVEL_LOG","INFO")

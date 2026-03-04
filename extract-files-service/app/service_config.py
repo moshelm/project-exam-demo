@@ -13,6 +13,11 @@ class ServiceConfig():
         self.level_log = os.getenv("LEVEL_LOG","INFO")
         self.service_name = os.getenv("SERVICE_NAME","process-files")
         
+        elasticsearch_host = os.getenv("ELASTICSEARCH_HOST","localhost")
+        elasticsearch_port = os.getenv("ELASTICSEARCH_PORT","9200")
+        self.index_logger = os.getenv("INDEX_LOGGER","logger")
+        self.elastic_config = f"http://{elasticsearch_host}:{elasticsearch_port}"
+
         data_path = os.getenv("DATA_PATH","/data")
 
         self.data_path = Path(data_path) / "podcasts"
