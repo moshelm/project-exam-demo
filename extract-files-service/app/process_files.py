@@ -16,7 +16,7 @@ class FileMetadata():
             metadata = {
                     "file_name":file_path.name,
                     "file_size" : stats.st_size,
-                    "file_create_date": datetime.fromtimestamp(stats.st_birthtime)
+                    "file_create_date": datetime.fromtimestamp(stats.st_ctime)
                     }
             return  {
                  "file_path":str(file_path),
