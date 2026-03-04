@@ -1,18 +1,31 @@
-from shared.kafka.producer import KafkaProducer, KafkaException
-from process_files import FileMetadata
+from shared.kafka.consumer import KafkaConsumer, KafkaException
+from shared.elasticsearch_connection import ElasticConnection
+from mongo_stor import StorAudioMongo
 from logging import Logger 
-import os 
+import hashlib
 
 class FileProcessor():
-    def __init__(self,producer: KafkaProducer, file_metadata : FileMetadata, logger : Logger):
+    def __init__(self,elastic : ElasticConnection, mongodb : StorAudioMongo, consumer: KafkaConsumer, logger : Logger):
         self.logger = logger 
-        self.producer = producer
-        self.file_metadata = file_metadata
+        self.consumer = consumer
+        self.elastic = elastic
+        self.mongodb = mongodb
 
-    def handle_file(self, file:str):
+    def generate_id(self,file_metadata:dict):
         try:
-            event = self.file_metadata.get_file_metadata(file)
-            self.producer.send_event(event)
+            code = f'{file_metadata["file_name"]}_{file_metadata['file_create_date']}'
+            return hashlib.md5(code.encode()).hexdigest()
+        except Exception:
+            self.logger.error("failed generate id",exc_info=True)
+            raise
+    
+    def handle_file(self, value:dict):
+        try:
+            file_id = self.generate_id(value['metadata'])
+            file_name = value['metadata']['file_name']
+            self.elastic.insert(value["metadata"],file_id)
+            with open(value["file_path"],'br') as file: 
+                self.mongodb.insert(file_name,file,file_id)
         except KafkaException:
             self.logger.critical("kafka failed",exc_info=True)
             raise
@@ -21,15 +34,12 @@ class FileProcessor():
             raise
         
     def run(self):
-        if not self.file_metadata.data_path.exists():
-            self.logger.critical("not found the base data",exc_info=True)    
-        for file in os.listdir(self.file_metadata.data_path):
-            try:
-                self.handle_file(file)
-            except KafkaException:
-                self.logger.critical("kafka failed",exc_info=True)
-                raise
-            except Exception:
-                self.logger.error("error in running",exc_info=True)
-            
+        try:
+            self.consumer.run(self.handle_file)    
+        except KafkaException:
+            self.logger.critical("kafka failed",exc_info=True)
+            raise
+        except Exception:
+            self.logger.error("error in running",exc_info=True)
+        
 
