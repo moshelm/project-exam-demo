@@ -1,6 +1,6 @@
 confluent-kafka==2.13.0
 dnspython==2.8.0
-elastic-transport==8.17.1
+elastic-transport==8.12.0
 elasticsearch==8.12.0
 pymongo==4.16.0
 
