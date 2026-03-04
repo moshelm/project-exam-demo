@@ -8,7 +8,7 @@ class StorAudioMongo():
         self.logger = logger
         self.mongo = MongoConnection(mongo_config,mongo_database,logger)
         try:
-            self.fs = gridfs.GridFS(self.mongo.db)
+            self.fs = gridfs.GridFS(self.mongo.db,"audio-collection")
         except GridFSError:
             self.logger.error("error in gridfs")
             raise
