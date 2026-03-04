@@ -24,9 +24,9 @@ class KafkaProducer():
         try:
             self.logger.info("serialize data to json encoded")
             value = serialize_json(data)
-            self.logger.info("send new event...")
+            
             self.producer.produce(topic=self.topic, value=value, callback=self.delivery_back)
-        
+            self.logger.info("send new event...")
         except KafkaException:
             self.logger.critical("error in produce",exc_info=True)
             raise

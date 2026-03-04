@@ -1,5 +1,4 @@
 import os 
-from pathlib import Path
 
 class ServiceConfig():
     def __init__(self):
