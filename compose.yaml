@@ -5,27 +5,31 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_KRAFT_MODE: 'true'  
+      KAFKA_KRAFT_MODE: 'true'
+
+      CLUSTER_ID: '1L6g7nGhU-eAKfL--X25wo'
       KAFKA_NODE_ID: 1
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      
+
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-      KAFKA_LISTENERS: CONTROLLER://0.0.0.0:9093,PLAINTEXT://0.0.0.0:9092
-      
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      
+
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
-      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+
+
+
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "9092"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 5s
   open-service:
-   build: ./process-files-service 
+   build: ./extract-files-service 
    container_name: open 
    env_file:
     - ./config/.env
@@ -33,6 +37,75 @@ services:
    volumes:
      - ./shared:/shared
      - ./data:/data
-     - ./process-files-service/app:/app
+     - ./extract-files-service/app:/app
    environment:
     - PYTHONPATH=/app:/
+   depends_on:
+     kafka:
+       condition: service_healthy
+  process-service:
+    build: ./process-files-service
+    container_name: process
+    env_file:
+    - ./config/.env
+    - ./config/process.env
+    volumes:
+      - ./shared:/shared
+      - ./data:/data
+      - ./process-files-service/app:/app
+    environment:
+      - PYTHONPATH=/app:/
+    depends_on:
+      mongodb:
+       condition: service_healthy
+      kafka:
+       condition: service_healthy
+      open-service:
+       condition: service_started
+      elasticsearch:
+       condition: service_healthy
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: elastic
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL","curl -s http://localhost:9200 >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 20s
+      retries: 5
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 1gb
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.0
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    healthcheck: 
+     test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"] 
+     interval: 10s 
+     timeout: 10s 
+     retries: 5
+    
+
+volumes:
+  es_data:
+  

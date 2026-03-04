@@ -1,6 +1,6 @@
 from confluent_kafka import Consumer, Message, KafkaException
 from logging import Logger 
-
+from shared.utils.serialize_json import deserialize_json
 
 class KafkaConsumer():
     def __init__(self,kafka_connection:str, topics:list[str], logger:Logger):
@@ -25,7 +25,7 @@ class KafkaConsumer():
                     self.logger.error(f"error in msg. {msg.error()}")
                     continue
                 self.logger.info("get new event...")
-                value = msg.value()
+                value = deserialize_json(msg.value())
                 callback(value)
         except KafkaException:
             self.logger.critical("consumer failed",exc_info=True)
