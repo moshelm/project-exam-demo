@@ -23,7 +23,13 @@ class ElasticConnection():
             return self.read_result(result)
         except Exception:
             self.logger.error("failed to search this query",exc_info=True)
-            
+    
+    def add_new_filed(self,file_id: str, new_field:dict):
+        try:
+            result = self.es.update(index=self.index, id=file_id, doc=new_field, doc_as_upsert=True)
+        except Exception:
+            self.logger.error(f"failed update doc id:{file_id}",exc_info=True)
+    
     def get_index_by_id(self,doc_id:str):
         return self.read_result(self.es.get(index= self.index, id= doc_id))
 
