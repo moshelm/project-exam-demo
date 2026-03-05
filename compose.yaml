@@ -18,10 +18,9 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
 
-      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
-
-
-
+      KAFKA_LOG_DIRS: /var/lib/kafka/data/kraft-combined-logs 
+    volumes: 
+      - kafka_kraft:/var/lib/kafka/data
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "9092"]
       interval: 10s
@@ -110,4 +109,4 @@ services:
 
 volumes:
   es_data:
-  
+  kafka_kraft:
