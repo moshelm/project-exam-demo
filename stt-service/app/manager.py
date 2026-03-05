@@ -20,7 +20,9 @@ class Orchestrator():
             file_bytes =file.read()
             file_for_memory = BytesIO(file_bytes)
             file_text = stt_file(file_for_memory, self.language)
-            self.elastic.add_new_filed(file_id,file_text)
+            data = {"data_stt":file_text}
+            res = self.elastic.add_new_filed(file_id,data)
+            self.logger.info(f"success update in elastic {file_name}. result:{str(res)}")
         except Exception:
             self.logger.error(f"error {file_name}",exc_info=True)
             raise
