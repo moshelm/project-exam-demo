@@ -4,11 +4,11 @@ from logging import Logger
 from shared.mongo_connection import MongoConnection
 
 class StorAudioMongo():
-    def __init__(self,mongo_config:str, mongo_database:str,logger: Logger):
+    def __init__(self,mongo_config:str, mongo_database:str, mongo_collection:str, logger: Logger):
         self.logger = logger
-        self.mongo = MongoConnection(mongo_config,mongo_database,logger)
+        self.mongo = MongoConnection(mongo_config,mongo_database,mongo_collection,logger)
         try:
-            self.fs = gridfs.GridFS(self.mongo.db,"audio-collection")
+            self.fs = gridfs.GridFS(self.mongo.db,self.mongo.collection)
         except GridFSError:
             self.logger.error("error in gridfs")
             raise

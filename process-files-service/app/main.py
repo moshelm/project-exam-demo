@@ -31,7 +31,7 @@ logger = Logger.get_logger(config.service_name, config.elastic_config, config.in
 
 def main():
     try:
-        mongodb = StorAudioMongo(config.mongo_config, config.mongo_db, logger)
+        mongodb = StorAudioMongo(config.mongo_config, config.mongo_db, config.mongo_collection, logger)
         elastic = ElasticConnection(config.elastic_config, config.index_name, logger)
         consumer = KafkaConsumer(config.kafka_connect, config.topics, logger)
         manager = FileProcessor(elastic, mongodb, consumer, logger)
