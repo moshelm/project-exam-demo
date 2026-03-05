@@ -1,4 +1,3 @@
-from shared.kafka.consumer import KafkaConsumer, KafkaException
 from shared.elasticsearch_connection import ElasticConnection
 from shared.mongo_connection import MongoConnection
 from logging import Logger 

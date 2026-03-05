@@ -1,7 +1,6 @@
 import logging 
 from manager import Orchestrator
 from service_config import ServiceConfig
-from shared.kafka.consumer import KafkaConsumer, KafkaException
 from shared.elasticsearch_connection import ElasticConnection
 from shared.logger_elastic import Logger
 from shared.mongo_connection import MongoConnection
