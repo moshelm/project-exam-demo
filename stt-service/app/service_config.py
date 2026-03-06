@@ -5,7 +5,7 @@ class ServiceConfig():
         kafka_port = os.getenv("KAFKA_PORT","9092")
         kafka_host = os.getenv("KAFKA_HOST","localhost")
         
-        self.topics = os.getenv("TOPICS","open").split(',')
+        self.topics = os.getenv("TOPICS","mongo").split(',')
         self.group_id = os.getenv("GROUP_ID","open")
 
         self.kafka_connect= {
