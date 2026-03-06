@@ -5,6 +5,7 @@ from service_config import ServiceConfig
 from shared.kafka.consumer import KafkaConsumer, KafkaException
 from shared.elasticsearch_connection import ElasticConnection
 from shared.logger_elastic import Logger
+from shared.kafka.producer import KafkaProducer
 
 config = ServiceConfig()
 config.validate()
@@ -33,8 +34,9 @@ def main():
     try:
         mongodb = StorAudioMongo(config.mongo_config, config.mongo_db, config.mongo_collection, logger)
         elastic = ElasticConnection(config.elastic_config, config.index_name, logger)
-        consumer = KafkaConsumer(config.kafka_connect, config.topics, logger)
-        manager = FileProcessor(elastic, mongodb, consumer, logger)
+        consumer = KafkaConsumer(config.kafka_connect, config.topics_consumer, logger)
+        producer = KafkaProducer(config.kafka_connect,config.topic_producer,logger)
+        manager = FileProcessor(elastic, mongodb, producer, consumer, logger)
 
         manager.run()
     

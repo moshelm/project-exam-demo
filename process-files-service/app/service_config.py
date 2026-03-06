@@ -5,7 +5,8 @@ class ServiceConfig():
         kafka_port = os.getenv("KAFKA_PORT","9092")
         kafka_host = os.getenv("KAFKA_HOST","localhost")
         
-        self.topics = os.getenv("TOPICS","open").split(',')
+        self.topics_consumer = os.getenv("TOPICS_CONSUMER","open").split(',')
+        self.topic_producer = os.getenv("TOPIC_PRODUCER","mongo")
         self.group_id = os.getenv("GROUP_ID","open")
 
         self.kafka_connect= {
@@ -19,7 +20,7 @@ class ServiceConfig():
         self.mongo_config = f"mongodb://{mongo_host}:{mongo_port}"
         self.mongo_db = os.getenv("MONGO_DATABASE","audio")
         self.mongo_collection = os.getenv("MONGO_COLLECTION","audio")
-        
+
         elasticsearch_host = os.getenv("ELASTICSEARCH_HOST","localhost")
         elasticsearch_port = os.getenv("ELASTICSEARCH_PORT","9200")
         self.index_name = os.getenv("INDEX_NAME","audio")
