@@ -5,8 +5,7 @@ class ServiceConfig():
         kafka_port = os.getenv("KAFKA_PORT","9092")
         kafka_host = os.getenv("KAFKA_HOST","localhost")
         
-        self.topics_consumer = os.getenv("TOPICS_CONSUMER","open").split(',')
-        self.topic_producer = os.getenv("TOPIC_PRODUCER","mongo")
+        self.topics = os.getenv("TOPICS","mongo").split(',')
         self.group_id = os.getenv("GROUP_ID","open")
 
         self.kafka_connect= {
@@ -31,6 +30,7 @@ class ServiceConfig():
         self.level_log = os.getenv("LEVEL_LOG","INFO")
         self.service_name = os.getenv("SERVICE_NAME","process-files")
         
+        self.language = os.getenv("LANGUAGE",'en-US')
     def validate(self):
         if not self.kafka_connect:
             raise

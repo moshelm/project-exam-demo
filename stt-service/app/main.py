@@ -1,11 +1,10 @@
 import logging 
-from manager import FileProcessor
-from mongo_stor import StorAudioMongo
+from manager import Orchestrator
 from service_config import ServiceConfig
-from shared.kafka.consumer import KafkaConsumer, KafkaException
 from shared.elasticsearch_connection import ElasticConnection
 from shared.logger_elastic import Logger
-from shared.kafka.producer import KafkaProducer
+from shared.mongo_connection import MongoConnection
+from shared.kafka.consumer import KafkaConsumer
 
 config = ServiceConfig()
 config.validate()
@@ -32,16 +31,12 @@ logger = Logger.get_logger(config.service_name, config.elastic_config, config.in
 
 def main():
     try:
-        mongodb = StorAudioMongo(config.mongo_config, config.mongo_db, config.mongo_collection, logger)
+        consumer = KafkaConsumer(config.kafka_connect, config.topics,logger)
+        mongodb = MongoConnection(config.mongo_config, config.mongo_db, config.mongo_collection, logger)
         elastic = ElasticConnection(config.elastic_config, config.index_name, logger)
-        consumer = KafkaConsumer(config.kafka_connect, config.topics_consumer, logger)
-        producer = KafkaProducer(config.kafka_connect,config.topic_producer,logger)
-        manager = FileProcessor(elastic, mongodb, producer, consumer, logger)
+        manager = Orchestrator(elastic, mongodb, consumer, config.language, logger)
 
         manager.run()
-    
-    except KafkaException:
-        raise
     except Exception:
         raise
 
