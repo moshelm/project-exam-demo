@@ -1,11 +1,9 @@
 import logging 
-from manager import Orchestrator
+from analyze_logic import Analyzer
 from service_config import ServiceConfig
 from shared.elasticsearch_connection import ElasticConnection
 from shared.logger_elastic import Logger
-from shared.mongo_connection import MongoConnection
 from shared.kafka.consumer import KafkaConsumer
-from shared.kafka.producer import KafkaProducer
 
 config = ServiceConfig()
 config.validate()
@@ -32,13 +30,10 @@ logger = Logger.get_logger(config.service_name, config.elastic_config, config.in
 
 def main():
     try:
-        producer = KafkaProducer(config.kafka_connect, config.topic_producer, logger)
-        consumer = KafkaConsumer(config.kafka_connect, config.topics_consumer,logger)
-        mongodb = MongoConnection(config.mongo_config, config.mongo_db, config.mongo_collection, logger)
+        consumer = KafkaConsumer(config.kafka_connect, config.topics_consumer, logger)
         elastic = ElasticConnection(config.elastic_config, config.index_name, logger)
-        manager = Orchestrator(elastic, mongodb,producer, consumer, config.language, logger)
-
-        manager.run()
+        analyzer = Analyzer(config.hostile_list, config.less_hostile_list, consumer, elastic, logger)
+        analyzer.run()
     except Exception:
         raise
 
