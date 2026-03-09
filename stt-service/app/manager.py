@@ -1,16 +1,18 @@
 from shared.elasticsearch_connection import ElasticConnection
 from shared.mongo_connection import MongoConnection
 from shared.kafka.consumer import KafkaConsumer, KafkaException
+from shared.kafka.producer import KafkaProducer
 from logging import Logger 
 import gridfs
 from stt import stt_file
 from io import BytesIO
 
 class Orchestrator():
-    def __init__(self,elastic : ElasticConnection, mongodb : MongoConnection, consumer : KafkaConsumer, language:str, logger : Logger):
+    def __init__(self,elastic : ElasticConnection, mongodb : MongoConnection, producer : KafkaProducer, consumer : KafkaConsumer, language:str, logger : Logger):
         self.logger = logger 
         self.language = language
         self.consumer = consumer
+        self.producer = producer
         self.elastic = elastic
         self.mongodb = mongodb
         self.fs = gridfs.GridFS(self.mongodb.db, self.mongodb.collection)
@@ -28,6 +30,7 @@ class Orchestrator():
             data = {"data_stt":file_text}
             res = self.elastic.add_new_filed(file_id,data)
             self.logger.info(f"success update in elastic {file_name}. result:{str(res)}")
+            self.producer.send_event({'_id':file_id})
         except Exception:
             self.logger.error(f"error {file_name}",exc_info=True)
             raise
