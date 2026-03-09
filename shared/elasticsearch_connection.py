@@ -20,7 +20,7 @@ class ElasticConnection():
     def search(self,query:dict):
         try:
             result = self.es.search(index=self.index, body= query)
-            return self.read_result(result)
+            return result
         except Exception:
             self.logger.error("failed to search this query",exc_info=True)
     
