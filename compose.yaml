@@ -85,6 +85,24 @@ services:
        condition: service_healthy
       kafka:
         condition: service_healthy
+  analyze-service:
+    build: ./analyze-service
+    container_name: analyzer
+    volumes:
+      - ./shared:/shared
+      - ./analyze-service/app:/app
+    environment:
+      - PYTHONPATH=/app:/
+    env_file:
+      - ./config/.env
+      - ./config/analyze.env
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      stt-files:
+        condition: service_started
+      kafka:
+        condition: service_healthy
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
     container_name: elastic
