@@ -13,7 +13,7 @@ class Orchestrator():
         self.consumer = consumer
         self.elastic = elastic
         self.mongodb = mongodb
-        self.fs = fs = gridfs.GridFS(self.mongodb.db, self.mongodb.collection)
+        self.fs = gridfs.GridFS(self.mongodb.db, self.mongodb.collection)
         
     def handle_file(self, data:dict):
         try:
