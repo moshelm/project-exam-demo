@@ -32,7 +32,14 @@ class ElasticConnection():
     
     def get_index_by_id(self,doc_id:str):
         return self.read_result(self.es.get(index= self.index, id= doc_id))
-
+    
+    def refresh_index(self):
+        try:
+            self.es.indices.refresh(index=self.index)
+            self.logger.info(f"Index {self.index} refreshed successfully")
+        except Exception:
+            self.logger.error(f"Failed to refresh index {self.index}", exc_info=True)
+    
     def read_result(self,result):
         data = []
         for hit in result['hits']['hits']:
